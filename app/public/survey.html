@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -154,34 +155,39 @@
 								</select>
 							</div>
 							
-							<button type="button" id="submit-btn" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Submit</button>
+						<button type="button" id="submit-btn" class="btn btn-primary" data-toggle="modal" data-target="match-modal">Submit</button>
 						</form>
-					<!-- Button trigger modal -->
+						
 
-					<!-- Modal -->
-					<div id= "exampleModal" class="modal fade">
-						<div class="modal-dialog" role="document">
-							<div class="modal-content">
-								<div class="modal-header">
-									<h5 class="modal-title">Modal title</h5>
-									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
-								</div>
-								<div class="modal-body">
-									<p>Modal body text goes here.</p>
-								</div>
-								<div class="modal-footer">
-									<button type="button" class="btn btn-primary">Save changes</button>
-									<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						<!-- Button trigger modal -->
+
+
+						<!-- Modal -->
+						<div id= "match-modal" class="modal fade">
+							<div class="modal-dialog" role="document">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title">Your match!</h5>
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
+									</div>
+									<div class="modal-body">
+										<h3 id="match-name" class="modal-title">Insert name</h3>
+										<!-- <p>Modal body text goes here.</p> -->
+										<img src="http://via.placeholder.com/100x100" id="match-photo"></img>
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
 
+					</div>
+				</div>
+				<a href="/api/friends" class="my-5">View API</a>
 			</div>
-		</div>
-	</div>
 
 
 
@@ -200,37 +206,93 @@
 	<!-- <script src="javascript.js"></script> -->
 
 	<script type="text/javascript">
-		$('#myModal').on('shown.bs.modal', function () {
-		  $('#myInput').focus()
-		})
-
+		// $('#myModal').on('shown.bs.modal', function () {
+		//   $('#myInput').focus()
+		// })
 		$("#submit-btn").on("click", event => {
 			event.preventDefault();
 			event.stopPropagation()
-			
+
 			var newFriend = {
 				name: $("#name-answer").val().trim(),
 				photo: $("#photo-answer").val().trim(),
 				scores: [
-					$("#q1Answer").val(),
-					$("#q2Answer").val(),
-					$("#q3Answer").val(),
-					$("#q4Answer").val(),
-					$("#q5Answer").val(),
-					$("#q6Answer").val(),
-					$("#q7Answer").val(),
-					$("#q8Answer").val(),
-					$("#q9Answer").val(),
-					$("#q10Answer").val()
+				$("#q1Answer").val(),
+				$("#q2Answer").val(),
+				$("#q3Answer").val(),
+				$("#q4Answer").val(),
+				$("#q5Answer").val(),
+				$("#q6Answer").val(),
+				$("#q7Answer").val(),
+				$("#q8Answer").val(),
+				$("#q9Answer").val(),
+				$("#q10Answer").val()
 				]
 			}
-			
-			console.log(newFriend);
 
-			$.post("/api/friends/new", newFriend)
+			$.get("/api/friends", (friendsArr) => {
+				var promise = Promise.resolve();
+				promise = promise
+				.then( () => determineMatch(newFriend,friendsArr) )
+				.then( match => getMatchInfo(match) )
+				.then( () => $("#match-modal").modal() )
+				.then( () => $.post("/api/friends/new", newFriend) )
+			}); 
 			
 		});
 
-	</script>
+		function determineMatch (newFriend, friendsArr){
+
+			var differences = [];
+			var matchIndex = 0;
+
+			for(var i=0; i<friendsArr.length; i++) {
+				//create a comparison value
+				var total = 0;
+				//for each question
+				for(var j=0; j<newFriend.scores.length; j++) {
+					//compare their score against yours and add the numbers up
+					total += updateScoreTotal(newFriend.scores[j],friendsArr[i].scores[j])
+				}
+				//store the total score difference in an array
+				console.log("total:" + total)
+				differences.push(total);
+				//check if there is a better match
+				matchIndex = updateMatchIndex(i,matchIndex,total,differences[matchIndex])
+			}
+			console.log("differences:")
+ 			console.log(differences)
+			var match = friendsArr[matchIndex];
+			console.log("your match is " + match.name)
+
+			return match;
+		}
+
+		function updateMatchIndex (i, currentMatchIndex, currentTotal, currentMatchTotal) {
+			if(i === 0){
+				return 0;
+			} else if (currentTotal < currentMatchTotal) { 
+				return i;
+			}
+			return currentMatchIndex;
+		}
+
+		function updateScoreTotal (newFriendScore, otherFriendScore) {
+			var newFriendInt = parseInt(newFriendScore);
+			var otherFriendInt = parseInt(otherFriendScore);
+			console.log(newFriendInt, otherFriendInt)
+			var diff = Math.abs(newFriendInt - otherFriendInt);
+			console.log(diff);
+
+			return diff;
+		}
+
+		function getMatchInfo (match) {
+			$("#match-name").text(match.name) 
+			$("#match-photo").attr("src",match.photo);
+		}
+
+	
+</script>
 </body>
 </html>

@@ -38,7 +38,7 @@ function apiRoutesListeners(app) {
 
 	app.post("/api/friends/new", (req, res) => { 
 		var newFriend = req.body;
-		determineMatch(newFriend);
+		// determineMatch(newFriend);
 		friendsArr.push(newFriend)		
 	})
 }

@@ -155,7 +155,8 @@
 								</select>
 							</div>
 							
-						<button type="button" id="submit-btn" class="btn btn-primary" data-toggle="modal" data-target="match-modal">Submit</button>
+							<button type="submit" id="submit-btn" class="btn btn-primary" data-toggle="modal" data-target="match-modal">Submit</button>
+
 						</form>
 						
 
@@ -206,91 +207,52 @@
 	<!-- <script src="javascript.js"></script> -->
 
 	<script type="text/javascript">
-		// $('#myModal').on('shown.bs.modal', function () {
-		//   $('#myInput').focus()
-		// })
+
+		//using an on submit for the form instead of an on click
+		// form . on submit =>
+		//$("#id of the form").on("submit", event => fxn)
 		$("#submit-btn").on("click", event => {
 			event.preventDefault();
-			event.stopPropagation()
+			//this prevents the event from triggering anything on parent elements
+			//good example -> if you click on a submit btn in a form, you only want to click the listener attached to that submit, not any listeners attached to any other elements of the form that technically also did get clicked. this is called event bubbling
+			//tldr - stops any parent listeners from triggering
+			event.stopPropagation();
 
+			var scores = []
+			for(var i=0; i<10; i++) {
+				scores.push($(`#q${i+1}Answer`).val());
+			}
+
+			//Add Input Validation
+			//consider **file input** to make sure something is a photo
+			//check format of text
+				//easier -> - correct file extensions? valid url in general?
+				//more difficult -> go to url and verify contents
 			var newFriend = {
 				name: $("#name-answer").val().trim(),
 				photo: $("#photo-answer").val().trim(),
-				scores: [
-				$("#q1Answer").val(),
-				$("#q2Answer").val(),
-				$("#q3Answer").val(),
-				$("#q4Answer").val(),
-				$("#q5Answer").val(),
-				$("#q6Answer").val(),
-				$("#q7Answer").val(),
-				$("#q8Answer").val(),
-				$("#q9Answer").val(),
-				$("#q10Answer").val()
-				]
+
+				scores: scores
+				//for expansion - scores
+				//instead of an array, make an object
+				//make an array of objects
+				//each of those objects holds data related to the question itself (question title, id, response)
+				//this keeps how you handle questions in the future more modular
 			}
 
-			$.get("/api/friends", (friendsArr) => {
-				var promise = Promise.resolve();
-				promise = promise
-				.then( () => determineMatch(newFriend,friendsArr) )
-				.then( match => getMatchInfo(match) )
-				.then( () => $("#match-modal").modal() )
-				.then( () => $.post("/api/friends/new", newFriend) )
-			}); 
+			$.post("/api/friends/new", newFriend, match => {
+				getMatchInfo(match);
+			}).then( () => $("#match-modal").modal() )
+			
+			//return false inside of your listener is the equivallent of having both event.preventDefault and event.stopPropogation
 			
 		});
 
-		function determineMatch (newFriend, friendsArr){
 
-			var differences = [];
-			var matchIndex = 0;
-
-			for(var i=0; i<friendsArr.length; i++) {
-				//create a comparison value
-				var total = 0;
-				//for each question
-				for(var j=0; j<newFriend.scores.length; j++) {
-					//compare their score against yours and add the numbers up
-					total += updateScoreTotal(newFriend.scores[j],friendsArr[i].scores[j])
-				}
-				//store the total score difference in an array
-				console.log("total:" + total)
-				differences.push(total);
-				//check if there is a better match
-				matchIndex = updateMatchIndex(i,matchIndex,total,differences[matchIndex])
-			}
-			console.log("differences:")
- 			console.log(differences)
-			var match = friendsArr[matchIndex];
-			console.log("your match is " + match.name)
-
-			return match;
-		}
-
-		function updateMatchIndex (i, currentMatchIndex, currentTotal, currentMatchTotal) {
-			if(i === 0){
-				return 0;
-			} else if (currentTotal < currentMatchTotal) { 
-				return i;
-			}
-			return currentMatchIndex;
-		}
-
-		function updateScoreTotal (newFriendScore, otherFriendScore) {
-			var newFriendInt = parseInt(newFriendScore);
-			var otherFriendInt = parseInt(otherFriendScore);
-			console.log(newFriendInt, otherFriendInt)
-			var diff = Math.abs(newFriendInt - otherFriendInt);
-			console.log(diff);
-
-			return diff;
-		}
-
-		function getMatchInfo (match) {
-			$("#match-name").text(match.name) 
-			$("#match-photo").attr("src",match.photo);
-		}
+	function getMatchInfo (match) {
+		$("#match-name").text(match.name) 
+		$("#match-photo").attr("src",match.photo);
+	}
 
 	
 </script>

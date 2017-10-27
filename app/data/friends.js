@@ -10,7 +10,7 @@ var friendsArr = [
 	},{
 		name: "Todo",
 		photo: "http://via.placeholder.com/350x350",
-		scores: [4,5,5,1,2,1,3,4,5,1]	
+		scores: [5,5,5,5,5,5,5,4,5,1]	
 	},{
 		name: "Nowhere",
 		photo: "http://via.placeholder.com/350x350",

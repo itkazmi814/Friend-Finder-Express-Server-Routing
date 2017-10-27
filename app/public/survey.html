@@ -219,9 +219,11 @@
 			event.stopPropagation();
 
 			var scores = []
+
 			for(var i=0; i<10; i++) {
 				scores.push($(`#q${i+1}Answer`).val());
 			}
+
 
 			//Add Input Validation
 			//consider **file input** to make sure something is a photo
@@ -231,7 +233,6 @@
 			var newFriend = {
 				name: $("#name-answer").val().trim(),
 				photo: $("#photo-answer").val().trim(),
-
 				scores: scores
 				//for expansion - scores
 				//instead of an array, make an object

@@ -10,7 +10,7 @@ function apiRoutesListeners(app) {
 	//When a new friend is posted to /api/friends/new,
 	app.post("/api/friends/new", (req, res) => { 
 		var newFriend = req.body;
-		//Creates a deep copy of the friendsArr
+		//Creates a deep copy of the friendsArr - is there a more efficient way to do this?
 		var differences = JSON.parse(JSON.stringify(friendsArr))
 		//Calculates the difference in scores between newFriend and all existing people
 		differences = calculateDifferences(differences, newFriend)

@@ -37,4 +37,4 @@ $("#submit-btn").on("click", event => {
 	}).then( () => $("#match-modal").modal() )
 	
 	//return false inside of your listener is the equivallent of having both event.preventDefault and event.stopPropogation
-}
+});

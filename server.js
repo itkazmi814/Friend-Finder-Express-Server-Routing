@@ -17,6 +17,4 @@ var htmlRoutesListeners = require("./app/routing/htmlRoutes.js");
 apiRoutesListeners(app)
 htmlRoutesListeners(app,path);
 
-app.listen(PORT, () => {
-	console.log("App listening on PORT " + PORT);
-})
+app.listen(PORT);

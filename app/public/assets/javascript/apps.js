@@ -23,7 +23,8 @@ $("#submit-btn").on("click", event => {
 		var newFriend = {
 			name: $("#name-answer").val().trim(),
 			photo: $("#photo-answer").val().trim(),
-			scores: scores
+			scores: scores,
+			total
 		//for expansion - scores
 		//instead of an array, make an object
 		//make an array of objects
